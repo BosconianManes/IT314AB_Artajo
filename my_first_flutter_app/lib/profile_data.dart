@@ -1,45 +1,94 @@
-// lib/profile_data.dart
+class Student {
+  String name;
+  String course;
+  int age;
+  String hobby;
+  String image;
+  String birthdate;
+  String studentId;
+  String email;
+  String favoriteSubject;
 
-// 5 Profiles - Some have missing data
+  Student({
+    required this.name,
+    required this.course,
+    required this.age,
+    required this.hobby,
+    required this.image,
+    required this.birthdate,
+    required this.studentId,
+    required this.email,
+    required this.favoriteSubject,
+  });
+}
 
-// Profile 1: Missing hobby
-String nameA = 'Armanes Christopher G. Artajo';
-String courseA = 'BSIT 3';
-int ageA = 20;
-String? hobbyA = null;  // Missing
-String imageA = 'assets/profile.jpg';
-String birthdateA = 'Nov 16, 2005';
+List<Student> students = [
+  Student(
+    name: 'Armanes Christopher G. Artajo',
+    course: 'BSIT 3',
+    age: 20,
+    hobby: 'Playing Online Games',
+    image: 'assets/profile.jpg',
+    birthdate: 'Nov 16, 2005',
+    studentId: '2024-001',
+    email: 'armanes.artajo@edu.ph',
+    favoriteSubject: 'IoT',
+  ),
+  Student(
+    name: 'Ivan Villareal',
+    course: 'BSIT 3',
+    age: 19,
+    hobby: 'VideoGrapher',
+    image: 'assets/images.jpg',
+    birthdate: 'Jan 31, 2002',
+    studentId: '2024-002',
+    email: 'ivan.villareal@edu.ph',
+    favoriteSubject: 'IoT',
+  ),
+  Student(
+    name: 'Wilken Nobetnov',
+    course: 'BSIT 3',
+    age: 21,
+    hobby: 'Gooning',
+    image: 'assets/wklen.jpg',
+    birthdate: 'Mar 22, 2005',
+    studentId: '2024-003',
+    email: 'wilken.nobetnov@edu.ph',
+    favoriteSubject: 'IoT',
+  ),
+  Student(
+    name: 'Tonyo Moreno',
+    course: 'BSIT 3',
+    age: 18,
+    hobby: 'Roblox',
+    image: 'assets/toning.jpg',
+    birthdate: 'Aug 4, 2005',
+    studentId: '2024-004',
+    email: 'tonyo.moreno@edu.ph',
+    favoriteSubject: 'Project Management',
+  ),
+  Student(
+    name: 'Joshua Santos',
+    course: 'BSIT 3',
+    age: 20,
+    hobby: 'CODE',
+    image: 'assets/shuaa.jpg',
+    birthdate: 'Sep 3, 2005',
+    studentId: '2024-005',
+    email: 'joshua.santos@edu.ph',
+    favoriteSubject: 'Project Management',
+  ),
+  Student(
+    name: 'Vincent Rebese',
+    course: 'BSIT 3',
+    age: 21,
+    hobby: 'Playing Online Games',
+    image: 'assets/Binsoy.jpg',
+    birthdate: 'Jan 5, 2005',
+    studentId: '2024-006',
+    email: 'vincent.rebese@edu.ph',
+    favoriteSubject: 'Project Management',
+  ),
+];
 
-// Profile 2: Missing course
-String nameB = 'Ivan Villareal';
-String? courseB = null;  // Missing
-int ageB = 19;
-String hobbyB = 'VideoGrapher';
-String imageB = 'assets/images.jpg';
-String birthdateB = 'Jan 31, 2002';
-
-// Profile 3: Missing name
-String? nameC = null;  // Missing
-String courseC = 'BSIT 3';
-int ageC = 21;
-String hobbyC = 'Gooning';
-String imageC = 'assets/wklen.jpg';
-String birthdateC = 'Mar 22, 2005';
-
-// Profile 4: Missing birthdate
-String nameD = 'Tonyo Moreno';
-String courseD = 'BSIT 3';
-int ageD = 18;
-String hobbyD = 'Roblox';
-String imageD = 'assets/toning.jpg';
-String? birthdateD = null;  // Missing
-
-// Profile 5: Complete
-String nameE = 'Joshua Santos';
-String courseE = 'BSIT 3';
-int ageE = 20;
-String hobbyE = 'CODE';
-String imageE = 'assets/shuaa.jpg';
-String birthdateE = 'Sep 3, 2005';
-
-String appTitle = 'Survive the Database';
+String appTitle = 'Student Data with ID';
