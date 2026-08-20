@@ -8,6 +8,7 @@ class Student {
   String studentId;
   String email;
   String favoriteSubject;
+  bool isFavorite;
 
   Student({
     required this.name,
@@ -19,6 +20,7 @@ class Student {
     required this.studentId,
     required this.email,
     required this.favoriteSubject,
+    this.isFavorite = false,
   });
 }
 
