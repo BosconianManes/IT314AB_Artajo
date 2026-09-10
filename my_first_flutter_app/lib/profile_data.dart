@@ -9,6 +9,7 @@ class Student {
   String email;
   String favoriteSubject;
   bool isFavorite;
+  bool isActive;
 
   Student({
     required this.name,
@@ -21,6 +22,7 @@ class Student {
     required this.email,
     required this.favoriteSubject,
     this.isFavorite = false,
+    this.isActive = true,
   });
 }
 
@@ -57,6 +59,7 @@ List<Student> students = [
     studentId: '2024-003',
     email: 'wilken.nobetnov@edu.ph',
     favoriteSubject: 'IoT',
+    isActive: false,
   ),
   Student(
     name: 'Tonyo Moreno',
@@ -68,6 +71,7 @@ List<Student> students = [
     studentId: '2024-004',
     email: 'tonyo.moreno@edu.ph',
     favoriteSubject: 'Project Management',
+    isActive: false,
   ),
   Student(
     name: 'Joshua Santos',
@@ -93,4 +97,4 @@ List<Student> students = [
   ),
 ];
 
-String appTitle = 'Student Data with ID';
+String appTitle = 'Student Data';

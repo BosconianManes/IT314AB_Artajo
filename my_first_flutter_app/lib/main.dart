@@ -29,8 +29,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   int _tapCount = 0;
+  bool _isLoading = false;
 
-  // DELETE METHOD
+  // delete method
   void _deleteStudent(int index) {
     setState(() {
       students.removeAt(index);
@@ -79,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // FAVORITE LABEL
+                // favorite label
                 if (student.isFavorite)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -97,6 +98,38 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 if (student.isFavorite) const SizedBox(height: 10),
+
+                // active / inactive label
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: student.isActive ? Colors.green : Colors.grey,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    student.isActive ? 'ACTIVE' : 'INACTIVE',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // warning, show lang if inactive
+                if (!student.isActive)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      '⚠ This student is currently inactive',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
 
                 ClipRRect(
                   borderRadius: BorderRadius.circular(60),
@@ -201,13 +234,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 16),
 
-                // BUTTONS ROW
+                // buttons row
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // FAVORITE BUTTON
+                      // favorite button
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
@@ -234,7 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       const SizedBox(width: 10),
 
-                      // EDIT BUTTON
+                      // edit button
                       ElevatedButton(
                         onPressed: () {
                           showDialog(
@@ -247,15 +280,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                   Text(
                                     'Editing: $name',
                                     style: const TextStyle(fontSize: 16),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    'Full edit screen coming in CTF 6!',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                      fontStyle: FontStyle.italic,
-                                    ),
                                   ),
                                 ],
                               ),
@@ -292,49 +316,51 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 10),
 
-                      // DELETE BUTTON
-                      ElevatedButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Delete Student'),
-                              content: Text('Are you sure you want to delete $name?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _deleteStudent(index);
-                                  },
-                                  child: const Text(
-                                    'Delete',
-                                    style: TextStyle(color: Colors.red),
+                      // delete button, show lang if active
+                      if (student.isActive) ...[
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Delete Student'),
+                                content: Text('Are you sure you want to delete $name?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Cancel'),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      _deleteStudent(index);
+                                    },
+                                    child: const Text(
+                                      'Delete',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.delete, size: 18),
+                              const SizedBox(width: 6),
+                              const Text('Delete'),
+                            ],
+                          ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.delete, size: 18),
-                            const SizedBox(width: 6),
-                            const Text('Delete'),
-                          ],
-                        ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -360,12 +386,41 @@ class _MyHomePageState extends State<MyHomePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          // loading toggle button
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              setState(() {
+                _isLoading = !_isLoading;
+              });
+            },
+          ),
+        ],
       ),
-      body: students.isEmpty
+      body: _isLoading
+          ? const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading students...'),
+          ],
+        ),
+      )
+          : students.isEmpty
           ? Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // empty state icon
+            Icon(
+              Icons.people_outline,
+              size: 60,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 8),
             Text(
               'No students found.',
               style: TextStyle(
