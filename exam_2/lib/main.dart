@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'inbox.dart';
+import 'message.dart';
 
 void main() {
   runApp(const MyApp());
@@ -68,7 +70,7 @@ List<Player> players = [
   ),
 ];
 
-Widget buildRow(Player player, bool isRedIcon) {
+Widget buildRow(BuildContext context, Player player, bool isRedIcon) {
   IconData iconToUse = Icons.phone_iphone;
   if (player.isPlaying == true) {
     iconToUse = Icons.monitor;
@@ -76,7 +78,7 @@ Widget buildRow(Player player, bool isRedIcon) {
 
   Color statusColor = Colors.grey;
   if (player.isOnline == true) {
-    statusColor = Colors.green;
+    statusColor = Colors.grey;
   }
 
   Color iconColor = Colors.white;
@@ -84,39 +86,73 @@ Widget buildRow(Player player, bool isRedIcon) {
     iconColor = Colors.red;
   }
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: Row(
-      children: [
-        CircleAvatar(
-          radius: 26,
-          backgroundColor: Colors.grey,
-          child: Icon(Icons.person, color: iconColor),
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MessageScreen(
+            conversation: Conversation(
+              name: player.name,
+              status: player.status,
+              isOnline: player.isOnline,
+            ),
+          ),
         ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      );
+    },
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Stack(
             children: [
-              Text(
-                player.name,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+              CircleAvatar(
+                radius: 26,
+                backgroundColor: Colors.grey,
+                child: Icon(Icons.person, color: iconColor),
               ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(iconToUse, color: Colors.grey, size: 14),
-                  const SizedBox(width: 6),
-                  Text(
-                    player.status,
-                    style: TextStyle(color: statusColor, fontSize: 12),
+              // online/offline status dot
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: player.isOnline ? Colors.green : Colors.grey,
+                    border: Border.all(color: Colors.black, width: 2),
                   ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  player.name,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(iconToUse, color: Colors.grey, size: 14),
+                    const SizedBox(width: 6),
+                    Text(
+                      player.status,
+                      style: TextStyle(color: statusColor, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -149,15 +185,25 @@ class SocialScreen extends StatelessWidget {
             ),
           ),
 
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                Text('Friends', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                SizedBox(width: 20),
-                Text('Messages', style: TextStyle(color: Colors.grey)),
-                SizedBox(width: 20),
-                Text('Requests', style: TextStyle(color: Colors.grey)),
+                const Text('Friends', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 20),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InboxScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Messages', style: TextStyle(color: Colors.grey)),
+                ),
+                const SizedBox(width: 20),
+                const Text('Requests', style: TextStyle(color: Colors.grey)),
               ],
             ),
           ),
@@ -172,7 +218,7 @@ class SocialScreen extends StatelessWidget {
           const SizedBox(height: 10),
 
           for (int i = 0; i < 3; i++)
-            buildRow(players[i], true),
+            buildRow(context, players[i], true),
 
           const SizedBox(height: 20),
 
@@ -183,7 +229,7 @@ class SocialScreen extends StatelessWidget {
           const SizedBox(height: 10),
 
           for (int i = 3; i < 5; i++)
-            buildRow(players[i], false),
+            buildRow(context, players[i], false),
         ],
       ),
     );
