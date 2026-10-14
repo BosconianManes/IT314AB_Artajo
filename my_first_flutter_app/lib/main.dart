@@ -4,7 +4,9 @@ import 'student_list_screen.dart';
 import 'student_details_screen.dart';
 import 'add_student_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await loadStudents();
   students.sort((a, b) => a.name.compareTo(b.name));
   runApp(const MyApp());
 }

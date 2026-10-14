@@ -1,27 +1,49 @@
 import 'package:flutter/material.dart';
 import 'profile_data.dart';
 
-class StudentDetailsScreen extends StatelessWidget {
+class StudentDetailsScreen extends StatefulWidget {
   final Student student;
 
   const StudentDetailsScreen({super.key, required this.student});
 
+  @override
+  State<StudentDetailsScreen> createState() => _StudentDetailsScreenState();
+}
+
+class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
+  Student get student => widget.student;
+
   void showEditDialog(BuildContext context) {
+    final nameController = TextEditingController(text: student.name);
+    final courseController = TextEditingController(text: student.course);
+    final emailController = TextEditingController(text: student.email);
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Edit Student'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Name: ${student.name}'),
-              const SizedBox(height: 8),
-              Text('Student ID: ${student.studentId}'),
-              const SizedBox(height: 8),
-              Text('Course: ${student.course}'),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Student ID: ${student.studentId}'),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                TextField(
+                  controller: courseController,
+                  decoration: const InputDecoration(labelText: 'Course'),
+                ),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -30,6 +52,12 @@ class StudentDetailsScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
+                setState(() {
+                  student.name = nameController.text.trim();
+                  student.course = courseController.text.trim();
+                  student.email = emailController.text.trim();
+                });
+                saveStudents();
                 Navigator.pop(context);
                 debugPrint('Edit confirmed for: ${student.name}');
               },
@@ -87,6 +115,15 @@ class StudentDetailsScreen extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Email: ${student.email}',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.red,
                 fontWeight: FontWeight.w500,
               ),
             ),

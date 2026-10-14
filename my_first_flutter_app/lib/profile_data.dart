@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class Student {
   String name;
   String course;
@@ -24,6 +27,36 @@ class Student {
     this.isFavorite = false,
     this.isActive = true,
   });
+
+  // turn a Student into a map (por saving)
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'course': course,
+    'age': age,
+    'hobby': hobby,
+    'image': image,
+    'birthdate': birthdate,
+    'studentId': studentId,
+    'email': email,
+    'favoriteSubject': favoriteSubject,
+    'isFavorite': isFavorite,
+    'isActive': isActive,
+  };
+
+  // turn a map back into a Student (for loading)
+  factory Student.fromJson(Map<String, dynamic> json) => Student(
+    name: json['name'],
+    course: json['course'],
+    age: json['age'],
+    hobby: json['hobby'],
+    image: json['image'],
+    birthdate: json['birthdate'],
+    studentId: json['studentId'],
+    email: json['email'],
+    favoriteSubject: json['favoriteSubject'],
+    isFavorite: json['isFavorite'],
+    isActive: json['isActive'],
+  );
 }
 
 List<Student> students = [
@@ -98,3 +131,18 @@ List<Student> students = [
 ];
 
 String appTitle = 'Student Data';
+
+// save the whole list
+Future<void> saveStudents() async {
+  final prefs = await SharedPreferences.getInstance();
+  final data = students.map((s) => jsonEncode(s.toJson())).toList();
+  await prefs.setStringList('students', data);
+}
+
+// load the saved list, if nothing is saved yet keep the default list
+Future<void> loadStudents() async {
+  final prefs = await SharedPreferences.getInstance();
+  final data = prefs.getStringList('students');
+  if (data == null) return;
+  students = data.map((s) => Student.fromJson(jsonDecode(s))).toList();
+}

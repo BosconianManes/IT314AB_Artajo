@@ -18,6 +18,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
     setState(() {
       students.removeAt(index);
     });
+    saveStudents();
     debugPrint('Deleted student at index: $index');
   }
 
@@ -45,7 +46,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
           context,
           '/student-details',
           arguments: student,
-        );
+        ).then((_) => setState(() {}));
       },
       child: Card(
         elevation: 8,
@@ -233,6 +234,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                           setState(() {
                             student.isFavorite = !student.isFavorite;
                           });
+                          saveStudents();
                           debugPrint('Favorite toggled for: $name (${student.isFavorite})');
                         },
                         style: ElevatedButton.styleFrom(
@@ -452,7 +454,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/add-student');
+          Navigator.pushNamed(context, '/add-student').then((_) => setState(() {}));
         },
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add, color: Colors.white),
