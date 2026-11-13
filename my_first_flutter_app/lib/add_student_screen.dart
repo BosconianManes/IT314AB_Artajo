@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:postgres/postgres.dart'; // Added for DB
 import 'profile_data.dart';
+import 'core/db_connection.dart'; // Added for DB
 
 class AddStudentScreen extends StatefulWidget {
   const AddStudentScreen({super.key});
@@ -36,10 +38,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         centerTitle: true,
         title: const Text(
           'Add Student',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -59,7 +58,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                     return 'Student ID is required';
                   }
                   final exists = students.any(
-                        (s) => s.studentId.toLowerCase() == value.trim().toLowerCase(),
+                    (s) =>
+                        s.studentId.toLowerCase() == value.trim().toLowerCase(),
                   );
                   if (exists) return 'Student ID already exists';
                   return null;
@@ -124,7 +124,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Email is required';
                   }
-                  if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value.trim())) {
+                  if (!RegExp(
+                    r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                  ).hasMatch(value.trim())) {
                     return 'Enter a valid email address';
                   }
                   return null;
@@ -132,11 +134,48 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  // Added async
                   if (_formKey.currentState!.validate()) {
+                    // 1. Split the name for the database
+                    String fullName = _nameController.text.trim();
+                    List<String> nameParts = fullName.split(' ');
+                    String firstName = nameParts.first;
+                    String lastName = nameParts.length > 1
+                        ? nameParts.sublist(1).join(' ')
+                        : '';
+
+                    // 2. Save to Neon Database
+                    try {
+                      final conn = await DbConnection.connection;
+                      await conn.execute(
+                        Sql.named('''
+                          INSERT INTO students (student_number, first_name, last_name, email, program_id, year_level, contact_number)
+                          VALUES (@student_number, @first_name, @last_name, @email, @program_id, @year_level, @contact_number)
+                        '''),
+                        parameters: {
+                          'student_number': _idController.text.trim(),
+                          'first_name': firstName,
+                          'last_name': lastName,
+                          'email': _emailController.text.trim(),
+                          'program_id': 1,
+                          'year_level': int.parse(_yearController.text.trim()),
+                          'contact_number': null,
+                        },
+                      );
+                    } catch (e) {
+                      // If database fails, show error
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text('DB Error: $e')));
+                      return; // Stop if DB fails
+                    }
+
+                    // 3. Update the local list so the UI shows it immediately
                     final newStudent = Student(
                       name: _nameController.text.trim(),
-                      course: '${_courseController.text.trim()} ${_yearController.text.trim()}',
+                      course:
+                          '${_courseController.text.trim()} ${_yearController.text.trim()}',
                       age: 0,
                       hobby: 'N/A',
                       image: 'assets/profile.jpg',
@@ -161,7 +200,10 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 12,
+                  ),
                 ),
                 child: const Text('Enroll Student'),
               ),

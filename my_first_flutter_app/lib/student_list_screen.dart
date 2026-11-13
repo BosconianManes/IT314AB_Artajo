@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'profile_data.dart';
-
+import 'student_details_screen.dart';
+import 'add_student_screen.dart';
 
 class StudentListScreen extends StatefulWidget {
   const StudentListScreen({super.key});
@@ -11,10 +12,9 @@ class StudentListScreen extends StatefulWidget {
 
 class _StudentListScreenState extends State<StudentListScreen> {
   int _tapCount = 0;
-  bool _isLoading = false;
 
-  // delete method
-  void _deleteStudent(int index) {
+  void _deleteStudent(int index) async {
+    // Optionally, you can add the DB delete logic here if you want the list to delete directly
     setState(() {
       students.removeAt(index);
     });
@@ -42,10 +42,13 @@ class _StudentListScreenState extends State<StudentListScreen> {
           _tapCount++;
         });
         debugPrint('Card tapped: $name (Total taps: $_tapCount)');
-        Navigator.pushNamed(
+
+        // FIXED: Changed from pushNamed to MaterialPageRoute
+        Navigator.push(
           context,
-          '/student-details',
-          arguments: student,
+          MaterialPageRoute(
+            builder: (context) => StudentDetailsScreen(student: student),
+          ),
         ).then((_) => setState(() {}));
       },
       child: Card(
@@ -68,10 +71,12 @@ class _StudentListScreenState extends State<StudentListScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // favorite label
                 if (student.isFavorite)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(12),
@@ -86,10 +91,11 @@ class _StudentListScreenState extends State<StudentListScreen> {
                     ),
                   ),
                 if (student.isFavorite) const SizedBox(height: 10),
-
-                // active / inactive label
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: student.isActive ? Colors.green : Colors.grey,
                     borderRadius: BorderRadius.circular(12),
@@ -104,8 +110,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // warning, show lang if inactive
                 if (!student.isActive)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -118,7 +122,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
                       ),
                     ),
                   ),
-
                 ClipRRect(
                   borderRadius: BorderRadius.circular(60),
                   child: Image.asset(
@@ -126,6 +129,8 @@ class _StudentListScreenState extends State<StudentListScreen> {
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.person, size: 100),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -211,42 +216,36 @@ class _StudentListScreenState extends State<StudentListScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Card tapped: $_tapCount times',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
                 const SizedBox(height: 16),
-
-                // buttons row
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // favorite button
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
                             student.isFavorite = !student.isFavorite;
                           });
                           saveStudents();
-                          debugPrint('Favorite toggled for: $name (${student.isFavorite})');
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: student.isFavorite ? Colors.red : Colors.pink,
+                          backgroundColor: student.isFavorite
+                              ? Colors.red
+                              : Colors.pink,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              student.isFavorite ? Icons.favorite : Icons.favorite_border,
+                              student.isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               size: 18,
                             ),
                             const SizedBox(width: 6),
@@ -255,58 +254,33 @@ class _StudentListScreenState extends State<StudentListScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-
-                      // edit button
                       ElevatedButton(
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Edit Student'),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Editing: $name',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Close'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    debugPrint('Edit confirmed for: $name');
-                                  },
-                                  child: const Text(
-                                    'Edit',
-                                    style: TextStyle(color: Colors.orange),
-                                  ),
-                                ),
-                              ],
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  StudentDetailsScreen(student: student),
                             ),
-                          );
+                          ).then((_) => setState(() {}));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.edit, size: 18),
-                            const SizedBox(width: 6),
-                            const Text('Edit'),
+                          children: const [
+                            Icon(Icons.edit, size: 18),
+                            SizedBox(width: 6),
+                            Text('Edit'),
                           ],
                         ),
                       ),
-
-                      // delete button, show lang if active
                       if (student.isActive) ...[
                         const SizedBox(width: 10),
                         ElevatedButton(
@@ -315,7 +289,9 @@ class _StudentListScreenState extends State<StudentListScreen> {
                               context: context,
                               builder: (context) => AlertDialog(
                                 title: const Text('Delete Student'),
-                                content: Text('Are you sure you want to delete $name?'),
+                                content: Text(
+                                  'Are you sure you want to delete $name?',
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
@@ -338,14 +314,17 @@ class _StudentListScreenState extends State<StudentListScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.delete, size: 18),
-                              const SizedBox(width: 6),
-                              const Text('Delete'),
+                            children: const [
+                              Icon(Icons.delete, size: 18),
+                              SizedBox(width: 6),
+                              Text('Delete'),
                             ],
                           ),
                         ),
@@ -375,86 +354,54 @@ class _StudentListScreenState extends State<StudentListScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          // loading toggle button
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () {
-              setState(() {
-                _isLoading = !_isLoading;
-              });
-            },
-          ),
-        ],
       ),
-      body: _isLoading
-          ? const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading students...'),
-          ],
-        ),
-      )
-          : students.isEmpty
+      body: students.isEmpty
           ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // empty state icon
-            Icon(
-              Icons.people_outline,
-              size: 60,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'No students found.',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.people_outline, size: 60, color: Colors.grey[400]),
+                  const SizedBox(height: 8),
+                  Text(
+                    'No students found.',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Student list is empty.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[500],
-              ),
-            ),
-          ],
-        ),
-      )
+            )
           : ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: students.length,
-        itemBuilder: (context, index) {
-          return Column(
-            children: [
-              buildProfileCard(
-                name: students[index].name,
-                course: students[index].course,
-                age: students[index].age,
-                hobby: students[index].hobby,
-                image: students[index].image,
-                birthdate: students[index].birthdate,
-                studentId: students[index].studentId,
-                email: students[index].email,
-                favoriteSubject: students[index].favoriteSubject,
-                index: index,
-              ),
-              if (index < students.length - 1) const SizedBox(height: 16),
-            ],
-          );
-        },
-      ),
+              padding: const EdgeInsets.all(16),
+              itemCount: students.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    buildProfileCard(
+                      name: students[index].name,
+                      course: students[index].course,
+                      age: students[index].age,
+                      hobby: students[index].hobby,
+                      image: students[index].image,
+                      birthdate: students[index].birthdate,
+                      studentId: students[index].studentId,
+                      email: students[index].email,
+                      favoriteSubject: students[index].favoriteSubject,
+                      index: index,
+                    ),
+                    if (index < students.length - 1) const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/add-student').then((_) => setState(() {}));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddStudentScreen()),
+          ).then((_) => setState(() {}));
         },
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add, color: Colors.white),
